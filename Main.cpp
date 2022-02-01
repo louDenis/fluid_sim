@@ -10,7 +10,6 @@
 
 Fluid* fluid;
 
-
 //------------------------------SHADERS------------------------------
 const char* vertexShaderSource =
 "#version 330 core \n"
@@ -170,20 +169,16 @@ int main(int argc, char **argv) {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		int id = glGetUniformLocation(shaderProgram, "ourTexture");
+		glUniform1i(id, 0);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		fluid->step();
 
-		for (int line = 0; line < brush_height; line++) {
-			for (int col = 0; col < brush_width; col++) {
-				brush[(line * brush_width * 3) + (col * 3) + 0] = 255; //(uint8_t)fluid->getDensity(x,y);
-				brush[(line * brush_width * 3) + (col * 3) + 1] = 0;//(uint8_t)fluid->getDensity(x, y);
-				brush[(line * brush_width * 3) + (col * 3) + 2] = 0;//(uint8_t)fluid->getDensity(x, y);
-			}
-		}
 
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
@@ -197,9 +192,15 @@ int main(int argc, char **argv) {
 						brush[(line * brush_width * 3) + (col * 3) + 2] = (uint8_t)fluid->getDensity(i, j);
 					}
 				}
+
+				//creer une 2eme texture
+				//texture de base: perlin 
+
 				
-				glTexSubImage2D(GL_TEXTURE_2D, 0, w, height - h, 15, 10, GL_RGB, GL_UNSIGNED_BYTE, brush);
+			
+				glTexSubImage2D(GL_TEXTURE_2D, 0, w, height - h, SCALE, SCALE, GL_RGB, GL_UNSIGNED_BYTE, brush);
 				glGenerateMipmap(GL_TEXTURE_2D);
+				
 			}
 		}
 	}
@@ -229,10 +230,6 @@ void processInput(GLFWwindow* window) {
 		float amtX = (float)x - previousX;
 		float amtY = (float)y - previousY;
 		fluid->addVelocity(x / SCALE, y / SCALE, amtX, amtY);
-
-
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, x, height - y, 15, 10, GL_RGB, GL_UNSIGNED_BYTE, brush);
-		//glGenerateMipmap(GL_TEXTURE_2D);
 		
 
 	}
@@ -255,3 +252,5 @@ std::string readFile(const char* path) {
 	}
 	return fileContent;
 }
+
+//pour les aspérités : hauteur= hauteur d'eau - b
