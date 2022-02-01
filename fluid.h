@@ -5,7 +5,7 @@
 
 constexpr auto N = 32;
 constexpr auto iter = 4;
-constexpr auto SCALE = 10;
+constexpr auto SCALE = 8;
 //int mouseX;
 //int mouseY;
 
